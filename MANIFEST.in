@@ -1,0 +1,15 @@
+# Include all __init__.py files
+global-include *.py
+
+# Include compiled extensions
+global-include *.so
+global-include *.pyd
+
+# Exclude source files that will be compiled
+global-exclude *.c
+global-exclude *.pyc
+global-exclude __pycache__
+
+# Include other necessary files
+include README.md
+include LICENSE
