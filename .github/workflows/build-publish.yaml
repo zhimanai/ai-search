@@ -1,0 +1,244 @@
+name: Build and Publish
+on:
+  push:
+    branches:
+      - "main"
+      - "prerelease/*"
+      - "v*"
+    tags:
+      - "v*"
+  pull_request:
+    branches:
+      - 'main'
+      - 'v*'
+  release:
+    types: [ published ]
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  SERVICE_NAME: platform-api
+  IMAGE_NAME: zhimanai.azurecr.io/platform-api
+
+jobs:
+  test:
+    runs-on: "k8s-sea1"
+    strategy:
+      matrix:
+        python-version: [ "3.11", "3.12" ]
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      - name: Login to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          registry: zhimanai.azurecr.io
+          username: ${{ secrets.DOCKER_REGISTRY_USER }}
+          password: ${{ secrets.DOCKER_REGISTRY_TOKEN }}
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+          pip install -r requirements-test.txt
+      - name: Test with pytest
+        run: |
+          ENV=test python -m pytest --cov=app --cov-report=term-missing:skip-covered --junitxml=pytest.xml | tee pytest-coverage.txt
+      - name: Pytest coverage comment
+        if: ${{ !contains(github.ref, 'refs/tags/') }}
+        uses: MishaKav/pytest-coverage-comment@main
+        with:
+          pytest-coverage-path: ./pytest-coverage.txt
+          junitxml-path: ./pytest.xml
+      
+
+  build:
+    runs-on: ubuntu-latest
+#    needs: test
+    strategy:
+      matrix:
+        python-version: [ "3.11", "3.12" ]
+        platform: [ "linux/amd64", "linux/arm64" ]
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      - name: Login to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          registry: zhimanai.azurecr.io
+          username: ${{ secrets.DOCKER_REGISTRY_USER }}
+          password: ${{ secrets.DOCKER_REGISTRY_TOKEN }}
+
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v3
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Extract metadata for Docker
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ env.IMAGE_NAME }}
+          tags: |
+            type=ref,event=pr
+            type=semver,pattern={{version}}
+            type=semver,pattern={{major}}.{{minor}}
+            type=semver,pattern={{major}}
+
+      - name: Build Docker image
+        id: build
+        uses: docker/build-push-action@v6
+        with:
+          platforms: linux/amd64,linux/arm64
+          build-args: COMMIT_SHA=${{ fromJSON(steps.meta.outputs.json).labels['org.opencontainers.image.revision'] }}
+          labels: ${{ steps.meta.outputs.labels }}
+          tags: ${{ steps.meta.outputs.tags }},${{ contains(github.ref, 'main') && format('{0}:latest',env.IMAGE_NAME) || '' }}
+          outputs: type=registry,name=${{ env.IMAGE_NAME }},push-by-digest=false,name-canonical=true,push=true
+          cache-from: type=gha,scope=${{ env.SERVICE_NAME }},compression=zstd
+          cache-to: type=gha,mode=max,scope=${{ env.SERVICE_NAME }}
+          push: true
+
+#      - name: Build tar
+#        if: contains(github.ref, 'main')
+#        uses: docker/build-push-action@v6
+#        with:
+#          platforms: linux/amd64
+#          build-args: COMMIT_SHA=${{ fromJSON(steps.meta.outputs.json).labels['org.opencontainers.image.revision'] }}
+#          labels: ${{ steps.meta.outputs.labels }}
+#          tags: ${{ steps.meta.outputs.tags }}
+#          outputs: type=docker,dest=${{ env.SERVICE_NAME }}-${{ steps.version.outputs.version }}.tar
+#          cache-from: type=gha,scope=${{ env.SERVICE_NAME }}
+#          cache-to: type=gha,mode=max,scope=${{ env.SERVICE_NAME }}
+#          push: false
+#
+#      - name: GZip tar
+#        if: contains(github.ref, 'main')
+#        run: gzip -f ${{ env.SERVICE_NAME }}-${{ steps.version.outputs.version }}.tar
+#
+#      - name: Azure Files Upload
+#        if: contains(github.ref, 'main')
+#        uses: azure/cli@v2
+#        with:
+#          azcliversion: latest
+#          inlineScript: |
+#            az storage file upload --source ${{ env.SERVICE_NAME }}-${{ steps.version.outputs.version }}.tar.gz -s docker-images --account-key ${{ secrets.AZURE_STORAGE_KEY }} --account-name zhimanai
+#            az storage file copy start --source-share docker-images --source-path ${{ env.SERVICE_NAME }}-${{ steps.version.outputs.version }}.tar.gz -s docker-images -p ${{ env.SERVICE_NAME }}-latest.tar.gz --account-key ${{ secrets.AZURE_STORAGE_KEY }} --account-name zhimanai
+#
+#      - name: Cleanup
+#        if: contains(github.ref, 'main')
+#        run: rm ${{ env.SERVICE_NAME }}-${{ steps.version.outputs.version }}.tar.gz
+
+  deploy:
+    runs-on: k8s-pek1
+    needs: build
+    if: contains(github.ref, 'refs/tags/')
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      - name: Extract metadata for Docker
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ env.IMAGE_NAME }}
+          tags: |
+            type=ref,event=pr
+            type=semver,pattern={{version}}
+            type=semver,pattern={{major}}.{{minor}}
+            type=semver,pattern={{major}}
+      - uses: azure/setup-kubectl@v4
+        name: Setup Kubectl
+      - uses: azure/k8s-set-context@v3
+        name: Set K8s Context
+        with:
+          kubeconfig: ${{ secrets.PEK1_KUBECONFIG }}
+      - uses: azure/k8s-create-secret@v4
+        name: Create K8s Secret
+        with:
+          namespace: zhiman
+          container-registry-url: zhimanai.azurecr.io
+          container-registry-username: ${{ secrets.DOCKER_REGISTRY_USER }}
+          container-registry-password: ${{ secrets.DOCKER_REGISTRY_TOKEN }}
+          secret-name: regcred
+
+      - uses: azure/k8s-bake@v3
+        name: Bake K8s Manifests
+        with:
+          releaseName: ${{ env.SERVICE_NAME }}
+          renderEngine: 'helm'
+          helmChart: './charts/'
+          overrideFiles: './charts/values.pek1.yaml'
+          overrides: |
+            global.version: ${{ fromJSON(steps.meta.outputs.json).labels['org.opencontainers.image.version'] }}
+          helm-version: 'latest'
+        id: bake
+
+      - uses: azure/k8s-deploy@v4
+        name: Deploy to K8s
+        with:
+          namespace: zhiman
+          manifests: ${{ steps.bake.outputs.manifestsBundle }}
+          images: |
+            ${{ env.IMAGE_NAME  }}:${{ fromJSON(steps.meta.outputs.json).labels['org.opencontainers.image.version'] }}
+          imagepullsecrets: |
+            regcred
+
+  prod-deploy:
+    runs-on: k8s-sea1
+    needs: deploy
+    if: github.event_name == 'release' && github.event.action == 'published'
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      - name: Extract metadata for Docker
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ env.IMAGE_NAME }}
+          tags: |
+            type=ref,event=pr
+            type=semver,pattern={{version}}
+            type=semver,pattern={{major}}.{{minor}}
+            type=semver,pattern={{major}}
+      - uses: azure/setup-kubectl@v4
+        name: Setup Kubectl
+      - uses: azure/k8s-set-context@v3
+        name: Set K8s Context
+        with:
+          kubeconfig: ${{ secrets.SEA1_KUBECONFIG }}
+      - uses: azure/k8s-create-secret@v4
+        name: Create K8s Secret
+        with:
+          namespace: zhiman
+          container-registry-url: zhimanai.azurecr.io
+          container-registry-username: ${{ secrets.DOCKER_REGISTRY_USER }}
+          container-registry-password: ${{ secrets.DOCKER_REGISTRY_TOKEN }}
+          secret-name: regcred
+
+      - uses: azure/k8s-bake@v3
+        name: Bake K8s Manifests
+        with:
+          releaseName: ${{ env.SERVICE_NAME }}
+          renderEngine: 'helm'
+          helmChart: './charts/'
+          overrideFiles: './charts/values.sea1.yaml'
+          overrides: |
+            global.version: ${{ fromJSON(steps.meta.outputs.json).labels['org.opencontainers.image.version'] }}
+          helm-version: 'latest'
+        id: bake
+
+      - uses: azure/k8s-deploy@v4
+        name: Deploy to K8s
+        with:
+          namespace: zhiman
+          manifests: ${{ steps.bake.outputs.manifestsBundle }}
+          images: |
+            ${{ env.IMAGE_NAME  }}:${{ fromJSON(steps.meta.outputs.json).labels['org.opencontainers.image.version'] }}
+          imagepullsecrets: |
+            regcred

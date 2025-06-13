@@ -1,3 +1,7 @@
 import logging
 
-logger = logging.Logger
+# logger = logging.Logger
+
+
+def get_logger():
+    return logging.getLogger(__name__)

@@ -1,5 +1,5 @@
 from abc import ABC, abstractmethod
-from typing import List, Optional, Dict
+from typing import List, Optional
 from uuid import UUID
 
 from llama_index.core.schema import Node
@@ -35,5 +35,5 @@ class Retriever(ABC):
         raise NotImplementedError()
 
     @abstractmethod
-    def index(self, document: Document) -> List[Node]:
+    def index(self, document) -> List[Node]:
         raise NotImplementedError()

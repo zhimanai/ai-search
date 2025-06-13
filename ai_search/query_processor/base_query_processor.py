@@ -1,8 +1,7 @@
 from abc import ABC, abstractmethod
 
 
-class Preprocessor(ABC):
-
+class QueryProcessor(ABC):
     @abstractmethod
     def preprocess(self, query: str) -> str:
         raise NotImplementedError
