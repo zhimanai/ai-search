@@ -78,6 +78,15 @@ jobs:
           _PYTHON_HOST_PLATFORM: ${{ (matrix.os == 'macos-13' && 'macosx-13.0-x86_64') || (matrix.os == 'macos-14' && 'macosx-14.0-arm64') || (matrix.os == 'macos-15' && 'macosx-15.0-arm64') || '' }}
           ARCHFLAGS: ${{ (matrix.os == 'macos-13' && '-arch x86_64') || (matrix.os == 'macos-14' && '-arch arm64') || (matrix.os == 'macos-15' && '-arch arm64') || '' }}
         run: |
+          if [ "$RUNNER_OS" == "macOS" ]; then
+            if [ "$RUNNER_ARCH" == "ARM64" ]; then
+              export ARCHFLAGS="-arch arm64"
+              export _PYTHON_HOST_PLATFORM="macosx-$(sw_vers -productVersion | cut -d. -f1).0-arm64"
+            else
+              export ARCHFLAGS="-arch x86_64"
+              export _PYTHON_HOST_PLATFORM="macosx-$(sw_vers -productVersion | cut -d. -f1).0-x86_64"
+            fi
+          fi
           if [ "$RUNNER_OS" == "Windows" ]; then
             ./build.cmd
           else
