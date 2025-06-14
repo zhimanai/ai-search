@@ -4,6 +4,8 @@ rm -rf build || mkdir -p build && rsync -avc --progress . build --exclude build
 
 cd build || exit
 
+python3 setup.py install_requires
+
 python3 setup.py build_ext --inplace
 
 # if $1 is not dev
