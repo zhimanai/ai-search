@@ -3,7 +3,7 @@ from typing import List
 from llama_index.core.postprocessor.types import BaseNodePostprocessor
 from llama_index.core.schema import NodeWithScore
 
-from ai_search.postprocessor.postprocessor import Postprocessor
+from ai_search.postprocessor.base_postprocessor import Postprocessor
 
 
 class RerankPostprocessor(Postprocessor):
@@ -28,7 +28,7 @@ class RerankPostprocessor(Postprocessor):
         self.default_reranker = default_reranker
 
     def postprocess(
-            self, query: str, nodes: List[NodeWithScore], *args, **kwargs
+        self, query: str, nodes: List[NodeWithScore], *args, **kwargs
     ) -> List[NodeWithScore]:
         """Rerank nodes based on their relevance to the query.
 
@@ -44,7 +44,7 @@ class RerankPostprocessor(Postprocessor):
         return self.default_reranker.postprocess_nodes(nodes, query_str=query)
 
     async def apostprocess(
-            self, query: str, nodes: List[NodeWithScore], *args, **kwargs
+        self, query: str, nodes: List[NodeWithScore], *args, **kwargs
     ) -> List[NodeWithScore]:
         """Asynchronously rerank nodes based on their relevance to the query.
 

@@ -1,0 +1,23 @@
+name: Lint
+on:
+  - push
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Python Dependencies
+        run: pip3 install ruff
+
+      - name: Ruff
+        run: ruff check .
+
+      - name: Ruff formatter
+        run: ruff format --check .

@@ -1,7 +1,18 @@
-from ai_search.retriever import hybrid_retriever
-from ai_search.retriever import retriever
+from ai_search.retriever import base_retriever
+from ai_search.retriever import image_retriever
+from ai_search.retriever import text_hybrid_retriever
 
-from ai_search.retriever.hybrid_retriever import (HybridRetriever,)
-from ai_search.retriever.retriever import (Retriever,)
+from ai_search.retriever.base_retriever import (
+    Retriever,
+)
+from ai_search.retriever.text_hybrid_retriever import (
+    TextHybridRetriever,
+)
 
-__all__ = ['HybridRetriever', 'Retriever', 'hybrid_retriever', 'retriever']
+__all__ = [
+    "Retriever",
+    "TextHybridRetriever",
+    "base_retriever",
+    "image_retriever",
+    "text_hybrid_retriever",
+]

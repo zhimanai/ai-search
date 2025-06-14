@@ -1,5 +1,5 @@
-from abc import ABC, abstractmethod
-from typing import List, Optional, Dict
+from abc import ABC
+from typing import List, Optional
 from uuid import UUID
 
 from llama_index.core.schema import Node
@@ -8,7 +8,7 @@ from ai_search.model.search_result import SearchResult
 
 
 class Retriever(ABC):
-    @abstractmethod
+    # @abstractmethod
     def retrieve(
         self,
         query: str,
@@ -21,7 +21,7 @@ class Retriever(ABC):
     ) -> List[SearchResult]:
         raise NotImplementedError()
 
-    @abstractmethod
+    # @abstractmethod
     async def aretrieve(
         self,
         query: str,
@@ -34,6 +34,6 @@ class Retriever(ABC):
     ) -> List[SearchResult]:
         raise NotImplementedError()
 
-    @abstractmethod
-    def index(self, document: Document) -> List[Node]:
+    # @abstractmethod
+    def index(self, document) -> List[Node]:
         raise NotImplementedError()
