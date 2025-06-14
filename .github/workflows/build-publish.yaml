@@ -58,8 +58,11 @@ jobs:
     #    needs: test
     strategy:
       matrix:
-        os: [ ubuntu-latest, ubuntu-24.04-arm, windows-latest, macos-13, macos-latest ]
+        os: [ ubuntu-latest, ubuntu-24.04-arm, windows-latest, macos-13, macos-14, macos-15, macos-latest ]
         python-version: [ "3.10", "3.11", "3.12", "3.13" ]
+    env:
+      _PYTHON_HOST_PLATFORM: ${{ (matrix.os == 'macos-13' && 'macosx-13.0-x86_64') || (matrix.os == 'macos-14' && 'macosx-14.0-arm64') || (matrix.os == 'macos-15' && 'macosx-15.0-arm64') || '' }}
+      ARCHFLAGS: ${{ (matrix.os == 'macos-13' && '-arch x86_64') || (matrix.os == 'macos-14' && '-arch arm64') || (matrix.os == 'macos-15' && '-arch arm64') || '' }}
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -68,7 +71,7 @@ jobs:
         with:
           python-version: ${{ matrix.python-version }}
           cache: 'pip'
-          architecture: ${{ (matrix.os == 'macos-13' && 'x64') || (matrix.os == 'macos-latest' && 'arm64') || '' }}
+          architecture: ${{ (matrix.os == 'macos-13' && 'x64') || (matrix.os == 'macos-15' && 'arm64') || '' }}
       - name: Install dependencies
         run: |-
           pip install -r requirements.txt
