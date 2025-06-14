@@ -107,5 +107,5 @@ jobs:
           name: ${{ steps.version.outputs.version }}
           tag_name: ${{ github.ref }}
           body: ${{ steps.changelog.outputs.changelog }}
-          files: ${{ steps.download.outputs.download-path }}/*
+          files: ${{ steps.download.outputs.download-path }}/**/*.whl
           generate_release_notes: true
