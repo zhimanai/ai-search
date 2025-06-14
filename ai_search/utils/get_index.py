@@ -5,7 +5,7 @@ from llama_index.core.indices import MultiModalVectorStoreIndex
 from llama_index.vector_stores.milvus import MilvusVectorStore
 from llama_index.vector_stores.milvus.utils import BaseSparseEmbeddingFunction
 
-from ai_search.config import config
+from ai_search.config import get_config
 
 
 # This must be async even though there is no await in the function
@@ -44,7 +44,7 @@ async def get_text_index(
 
 async def get_image_store(knowledge_base_id, top_k):
     return MilvusVectorStore(
-        uri=f"http://{config['MILVUS_HOST']}:{config['MILVUS_PORT']}",
+        uri=f"http://{get_config()['MILVUS_HOST']}:{get_config()['MILVUS_PORT']}",
         collection_name=f"kb_{str(knowledge_base_id).replace('-', '')}_image",
         dim=1536,
         overwrite=False,
