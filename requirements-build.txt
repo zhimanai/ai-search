@@ -1,3 +1,4 @@
 setuptools
+wheel
 Cython
 setuptools_scm
