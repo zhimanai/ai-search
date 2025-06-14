@@ -120,7 +120,7 @@ jobs:
         with:
           draft: false
           prerelease: true
-          name: ${{ steps.version.outputs.version }}
+          name: ${{ github.ref_name }}
           tag_name: ${{ github.ref }}
           body: ${{ steps.changelog.outputs.changelog }}
           files: ${{ steps.glob.outputs.files }}
