@@ -10,6 +10,7 @@ from Cython.Distutils import build_ext
 from setuptools import Extension, Distribution
 from setuptools import setup
 from setuptools.command.bdist_wheel import bdist_wheel as _bdist_wheel
+from setuptools_scm.version import get_local_dirty_tag
 
 Cython.Compiler.Options.docstrings = False
 
@@ -98,6 +99,10 @@ class BinaryDistribution(Distribution):
         return True
 
 
+def clean_scheme(version):
+    return get_local_dirty_tag(version) if version.dirty else "+clean"
+
+
 # finally, we can pass all this to distutils
 setup(
     name="ai-search",
@@ -105,4 +110,5 @@ setup(
     ext_modules=cythonize(extensions, gdb_debug=False),
     cmdclass={"build_ext": build_ext, "bdist_wheel": bdist_wheel},
     distclass=BinaryDistribution,
+    use_scm_version={"local_scheme": clean_scheme},
 )

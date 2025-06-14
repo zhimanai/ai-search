@@ -6,12 +6,12 @@ from ai_search.retriever.base_retriever import (
     Retriever,
 )
 from ai_search.retriever.text_hybrid_retriever import (
-    TextHybridRetriver,
+    TextHybridRetriever,
 )
 
 __all__ = [
     "Retriever",
-    "TextHybridRetriver",
+    "TextHybridRetriever",
     "base_retriever",
     "image_retriever",
     "text_hybrid_retriever",

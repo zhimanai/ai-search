@@ -33,7 +33,7 @@ from ai_search.query_processor import (
 )
 from ai_search.retriever import (
     Retriever,
-    TextHybridRetriver,
+    TextHybridRetriever,
     base_retriever,
     image_retriever,
     text_hybrid_retriever,
@@ -55,7 +55,7 @@ __all__ = [
     "RerankPostprocessor",
     "Retriever",
     "SearchResult",
-    "TextHybridRetriver",
+    "TextHybridRetriever",
     "ThresholdPostprocessor",
     "base_postprocessor",
     "base_query_processor",
