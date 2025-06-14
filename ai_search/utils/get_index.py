@@ -17,7 +17,7 @@ async def get_text_store(
     sparse_embedding_func: BaseSparseEmbeddingFunction,
 ):
     return MilvusVectorStore(
-        uri=f"http://{config['MILVUS_HOST']}:{config['MILVUS_PORT']}",
+        uri=f"http://{get_config()['MILVUS_HOST']}:{get_config()['MILVUS_PORT']}",
         collection_name=f"kb_{str(knowledge_base_id).replace('-', '')}_text",
         dim=1024,
         overwrite=False,
