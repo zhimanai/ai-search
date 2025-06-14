@@ -97,7 +97,7 @@ jobs:
         id: download
         uses: actions/download-artifact@v4
       - name: debug
-        run: ls -R ${{steps.download.outputs.download-path}}
+        run: tree -d ${{steps.download.outputs.download-path}}
       - name: Release
         uses: softprops/action-gh-release@v2
         id: create_release
