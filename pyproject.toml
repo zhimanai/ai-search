@@ -2,22 +2,7 @@
 name = 'ai-search'
 version = '1.0.0'
 requires-python = ">= 3.8"
-dependencies = [
-#    "llama-index",
-#    "httpx",
-#    "llama-index",
-#    "llama-index-vector-stores-milvus",
-#    "llama-index-embeddings-dashscope",
-#    "llama-index-embeddings-openai",
-#    "llama-index-embeddings-openai-like",
-#    "llama-index-embeddings-clip",
-#    "llama-index-embeddings-xinference",
-#    "llama-index-llms-openai-like",
-#    "llama-index-postprocessor-xinference-rerank",
-#    "llama-index-multi-modal-llms-openai",
-#    "llama-index-multi-modal-llms-dashscope",
-#    "dashscope"
-]
+dynamic = ["dependencies"]
 
 [build-system]
 requires = ["setuptools", "cython"]
@@ -25,3 +10,6 @@ build-backend = "setuptools.build_meta"
 
 [tool.setuptools.packages.find]
 include = ["ai_search"]
+
+[tool.setuptools.dynamic]
+dependencies = {file = ["requirements.txt"]}

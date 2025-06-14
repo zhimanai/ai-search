@@ -10,8 +10,6 @@ robocopy . build /E /XD build
 
 cd build || exit /b
 
-python setup.py install_requires
-
 python setup.py build_ext --inplace
 
 REM Check if first argument is not "dev"
