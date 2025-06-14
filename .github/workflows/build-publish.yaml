@@ -66,7 +66,7 @@ jobs:
       - name: Install dependencies
         run: |-
           pip install -r requirements.txt
-          pip install -r requirements-build.text
+          pip install -r requirements-build.txt
       - name: Build wheels
         run: bash build.sh
       - uses: actions/upload-artifact@v4
