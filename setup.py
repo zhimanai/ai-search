@@ -111,7 +111,11 @@ setup(
     cmdclass={"build_ext": build_ext, "bdist_wheel": bdist_wheel},
     distclass=BinaryDistribution,
     use_scm_version={
-        "version_scheme": 'only-version' if os.getenv('CI', 'false') == 'true' else 'guess-next-dev',
-        "local_scheme": 'no-local-version' if os.getenv('CI', 'false') == 'true' else 'node-and-date'
+        "version_scheme": "only-version"
+        if os.getenv("CI", "false") == "true"
+        else "guess-next-dev",
+        "local_scheme": "no-local-version"
+        if os.getenv("CI", "false") == "true"
+        else "node-and-date",
     },
 )
