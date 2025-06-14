@@ -105,5 +105,5 @@ setup(
     ext_modules=cythonize(extensions, gdb_debug=False),
     cmdclass={"build_ext": build_ext, "bdist_wheel": bdist_wheel},
     distclass=BinaryDistribution,
-    requires=["cython"]
+    requires=["cython"],
 )
