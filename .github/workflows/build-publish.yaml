@@ -94,8 +94,10 @@ jobs:
       - name: Download all workflow run artifacts
         id: download
         uses: actions/download-artifact@v4
-      - name: debug
-        run: tree ${{steps.download.outputs.download-path}}
+      - name: Glob
+        id: glob
+        run: |-
+          echo "::set-output name=files::$(find ${{ steps.download.outputs.download-path }} -name '*.whl')"
       - name: Release
         uses: softprops/action-gh-release@v2
         id: create_release
@@ -105,5 +107,5 @@ jobs:
           name: ${{ steps.version.outputs.version }}
           tag_name: ${{ github.ref }}
           body: ${{ steps.changelog.outputs.changelog }}
-          files: ${{ steps.download.outputs.download-path }}/**/*.whl
+          files: ${{ steps.glob.outputs.files }}
           generate_release_notes: true
