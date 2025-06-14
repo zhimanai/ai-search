@@ -4,7 +4,7 @@ from uuid import UUID
 
 from llama_index.core.schema import Node
 
-from ai_search.logger import logger
+from ai_search.logger import get_logger
 from ai_search.model.search_result import SearchResult
 from ai_search.retriever.base_retriever import Retriever
 from ai_search.utils.get_index import get_text_index
@@ -42,7 +42,7 @@ class TextHybridRetriever(Retriever):
         **kwargs,
     ) -> List[SearchResult]:
         start_time = time.time()
-        logger.info(f"Retrival start time: {start_time}")
+        get_logger().info(f"Retrival start time: {start_time}")
         index = await get_text_index(
             knowledge_base_id,
             top_k,
@@ -57,7 +57,7 @@ class TextHybridRetriever(Retriever):
         retrival_time = time.time()
 
         end_time = time.time()
-        logger.info(
+        get_logger().info(
             f"Retrival time: {retrival_time - start_time}, rerank time: {end_time - retrival_time}, total time taken: {end_time - start_time}"
         )
 
