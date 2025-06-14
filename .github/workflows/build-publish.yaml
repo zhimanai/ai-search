@@ -68,6 +68,7 @@ jobs:
         with:
           python-version: ${{ matrix.python-version }}
           cache: 'pip'
+          architecture: ${{ (matrix.os == 'macos-13' && 'x64') || (matrix.os == 'macos-latest' && 'arm64') || '' }}
       - name: Install dependencies
         run: |-
           pip install -r requirements.txt
