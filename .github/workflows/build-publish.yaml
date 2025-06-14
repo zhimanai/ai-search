@@ -63,6 +63,10 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
       - uses: actions/setup-python@v5
+      - name: Install dependencies
+        run: |-
+          pip install -r requirements.txt
+          pip install -r requirements-build.text
       - name: Build wheels
         run: bash build.sh
       - uses: actions/upload-artifact@v4
