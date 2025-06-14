@@ -41,6 +41,7 @@ jobs:
         uses: actions/setup-python@v5
         with:
           python-version: ${{ matrix.python-version }}
+          cache: 'pip'
       - name: Test with pytest
         run: |
           ENV=test python -m pytest --cov=app --cov-report=term-missing:skip-covered --junitxml=pytest.xml | tee pytest-coverage.txt
@@ -62,11 +63,15 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+          cache: 'pip'
       - name: Install dependencies
         run: |-
-          pip3 install -r requirements.txt
-          pip3 install -r requirements-build.txt
+          pip install -r requirements.txt
+          pip install -r requirements-build.txt
       - name: Build wheels
         run: bash build.sh
       - uses: actions/upload-artifact@v4
