@@ -1,2 +1,3 @@
 setuptools
 Cython
+setuptools_scm

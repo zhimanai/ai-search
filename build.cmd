@@ -26,5 +26,8 @@ python setup.py bdist_wheel
 
 cd .. || exit /b
 
-xcopy build\dist dist\ /E /I
+IF NOT EXIST dist (
+    mkdir dist
+)
+xcopy /E /Y build\dist\* dist\
 rmdir /s /q build
