@@ -96,7 +96,10 @@ jobs:
         uses: actions/download-artifact@v4
       - name: Glob
         id: glob
-        run: echo "files=$(find ${{ steps.download.outputs.download-path }} -name '*.whl')" >> $GITHUB_OUTPUT
+        run:
+          echo "files<<EOF" >> $GITHUB_OUTPUT
+          find ${{ steps.download.outputs.download-path }} -name "*.whl" >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
       - name: Release
         uses: softprops/action-gh-release@v2
         id: create_release
