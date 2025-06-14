@@ -103,9 +103,6 @@ def clean_scheme(version):
     return get_local_dirty_tag(version) if version.dirty else "+clean"
 
 
-print(os.getenv("CI", "false"))
-print(type(os.getenv("CI")))
-
 # finally, we can pass all this to distutils
 setup(
     name="ai-search",
