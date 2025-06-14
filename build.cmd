@@ -6,7 +6,7 @@ IF EXIST build (
 mkdir build
 
 REM Copy all files except build directory itself
-xcopy * build\ /E /I /EXCLUDE:build
+robocopy . build /E /XD build
 
 cd build || exit /b
 
