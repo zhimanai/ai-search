@@ -26,7 +26,7 @@ def remove_debug(x):
         if x == "-g":
             return ""
         if x.startswith("-g "):
-            return remove_debug(x[len("-g ") :])
+            return remove_debug(x[len("-g "):])
         if x.endswith(" -g"):
             return remove_debug(x[: -len(" -g")])
         return x.replace(" -g ", " ")
@@ -58,9 +58,9 @@ def scandir(dir, files=[]):
     for file in os.listdir(dir):
         path = os.path.join(dir, file)
         if (
-            os.path.isfile(path)
-            and path.endswith(".py")
-            and not path.endswith("__init__.py")
+                os.path.isfile(path)
+                and path.endswith(".py")
+                and not path.endswith("__init__.py")
         ):
             files.append(path.replace(os.path.sep, ".")[:-3])
         elif os.path.isdir(path):
@@ -99,10 +99,6 @@ class BinaryDistribution(Distribution):
         return True
 
 
-def clean_scheme(version):
-    return get_local_dirty_tag(version) if version.dirty else "+clean"
-
-
 # finally, we can pass all this to distutils
 setup(
     name="ai-search",
@@ -110,5 +106,4 @@ setup(
     ext_modules=cythonize(extensions, gdb_debug=False),
     cmdclass={"build_ext": build_ext, "bdist_wheel": bdist_wheel},
     distclass=BinaryDistribution,
-    use_scm_version={"local_scheme": clean_scheme},
 )
