@@ -2,10 +2,10 @@ from abc import ABC, abstractmethod
 
 
 class QueryProcessor(ABC):
-    @abstractmethod
+    # @abstractmethod
     def preprocess(self, query: str) -> str:
         raise NotImplementedError
 
-    @abstractmethod
+    # @abstractmethod
     async def apreprocess(self, query: str) -> str:
         raise NotImplementedError

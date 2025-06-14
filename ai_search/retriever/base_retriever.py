@@ -8,7 +8,7 @@ from ai_search.model.search_result import SearchResult
 
 
 class Retriever(ABC):
-    @abstractmethod
+    # @abstractmethod
     def retrieve(
         self,
         query: str,
@@ -21,7 +21,7 @@ class Retriever(ABC):
     ) -> List[SearchResult]:
         raise NotImplementedError()
 
-    @abstractmethod
+    # @abstractmethod
     async def aretrieve(
         self,
         query: str,
@@ -34,6 +34,6 @@ class Retriever(ABC):
     ) -> List[SearchResult]:
         raise NotImplementedError()
 
-    @abstractmethod
+    # @abstractmethod
     def index(self, document) -> List[Node]:
         raise NotImplementedError()

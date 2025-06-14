@@ -17,5 +17,5 @@ python3 setup.py bdist_wheel
 
 cd .. || exit
 
-mkdir -p dist
+rm -rf dist && mkdir -p dist
 cp -r build/dist/* dist/ && rm -rf build
