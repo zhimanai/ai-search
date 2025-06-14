@@ -16,3 +16,5 @@ fi
 python3 setup.py bdist_wheel
 
 cd .. || exit
+
+cp -r build/dist dist && rm -rf build

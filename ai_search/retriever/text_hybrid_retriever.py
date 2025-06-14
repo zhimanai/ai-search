@@ -2,17 +2,22 @@ import time
 from typing import List, Optional
 from uuid import UUID
 
+from llama_index.core.schema import Node
+
 from ai_search.logger import logger
 from ai_search.model.search_result import SearchResult
 from ai_search.retriever.base_retriever import Retriever
 from ai_search.utils.get_index import get_text_index
 
 
-class TextHybridRetriver(Retriever):
+class TextHybridRetriever(Retriever):
     def __init__(self, embedding_model, sparse_embedding_model, image_embedding_model):
         self.embedding_model = embedding_model
         self.sparse_embedding_model = sparse_embedding_model
         self.image_embedding_model = image_embedding_model
+
+    def index(self, document) -> List[Node]:
+        pass
 
     def retrieve(
         self,
