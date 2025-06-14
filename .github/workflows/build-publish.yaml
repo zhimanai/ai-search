@@ -96,7 +96,8 @@ jobs:
         uses: actions/download-artifact@v4
       - name: Glob
         id: glob
-        run:
+        run: |-
+          find ${{ steps.download.outputs.download-path }} -name "*.whl"
           echo "files<<EOF" >> $GITHUB_OUTPUT
           find ${{ steps.download.outputs.download-path }} -name "*.whl" >> $GITHUB_OUTPUT
           echo "EOF" >> $GITHUB_OUTPUT
